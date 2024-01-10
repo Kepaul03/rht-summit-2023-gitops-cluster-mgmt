@@ -1,1 +1,53 @@
 
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: project-memes-prod
+bases:
+- ../../base
+
+# Patches are edits to make to a set of one or more targets
+patches:
+# This patch targets the Namespace resource and changes the
+# value of metadata.name to "project-memes-prod"
+- target:
+    kind: Namespace
+    name: for-replacement
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: project-memes-prod
+# This patch targets the resource quota. It doubles the available
+# resources compared to the default values
+- target:
+    kind: ResourceQuota
+    name: resource-quota-memory-cpu
+  patch: |-
+    - op: replace
+      path: /spec/hard/cpu
+      value: 1
+    - op: replace
+      path: /spec/hard/memory
+      value: 1Gi
+Edit the kustomization.yaml file in the managed-namespaces/overlays/ folder to reference your new Namespace configuration. It should now look like this:
+
+
+bases:
+- ./project-memes-dev
+- ./project-memes-prod
+The end result will be a new managed-namespaces/overlays/project-memes-prod/kustomization.yaml file, and the existing managed-namespaces/overlays/kustomize.yaml is updated to reference the new project-memes-prod/ folder as shown:
+
+ex4.github ide namespace files
+Edit the spec.source.repoURL in etc/managed-namespaces.application.yaml to point to your repository’s URL.
+
+ex4.github ide application cr
+Use the Source Control section of the GitHub editor to enter a commit message, then press Commit & Push.
+
+ex4.github ide commit
+You now have two Namespaces ready to be synchronised and managed by Argo CD on your OpenShift cluster. You also have the Application CR required by Argo CD.
+
+Argo CD Self-Healing Capabilities
+Create Applications using the CLI
+Contents
+Examine the Base Resources
+Define a Namespace using Overlays
